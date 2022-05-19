@@ -1,0 +1,343 @@
+
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[DimAuLocalSchool]    Script Date: 19/05/2022 3:04:27 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DimAuLocalSchool](
+	[DWSchoolKey] [int] IDENTITY(1,1) NOT NULL,
+	[SchoolId] [int] NULL,
+	[Year] [bigint] NULL,
+	[SchoolName] [nvarchar](50) NULL,
+	[Suburb] [nvarchar](50) NULL,
+	[StateCode] [nvarchar](50) NULL,
+	[SchoolType] [nvarchar](50) NULL,
+	[Geolocation] [nvarchar](50) NULL,
+	[TotalEnrolments] [int] NULL,
+	[GirlsEnrolment] [int] NULL,
+	[BoyEnrolment] [int] NULL,
+ CONSTRAINT [PK_DimAuLocalSchool] PRIMARY KEY CLUSTERED 
+(
+	[DWSchoolKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[DimGeography]    Script Date: 19/05/2022 3:07:00 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DimGeography](
+	[DWGeographyKey] [int] IDENTITY(1,1) NOT NULL,
+	[SubId] [int] NULL,
+	[PostCode] [bigint] NULL,
+	[StateCode] [nvarchar](50) NULL,
+	[Suburb] [nchar](10) NULL,
+	[City] [nvarchar](50) NULL,
+	[District] [nvarchar](50) NULL,
+	[State] [nvarchar](50) NULL,
+	[Longitude] [float] NULL,
+	[Latitude] [float] NULL,
+ CONSTRAINT [PK_DimGeography] PRIMARY KEY CLUSTERED 
+(
+	[DWGeographyKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[DimState]    Script Date: 19/05/2022 3:08:08 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DimState](
+	[DWStateKey] [int] IDENTITY(1,1) NOT NULL,
+	[StateCode] [nvarchar](50) NOT NULL,
+	[StateName] [nvarchar](50) NULL,
+ CONSTRAINT [PK_DimState] PRIMARY KEY CLUSTERED 
+(
+	[DWStateKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[DimTransport]    Script Date: 19/05/2022 3:08:32 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DimTransport](
+	[DWTransportKey] [int] IDENTITY(1,1) NOT NULL,
+	[StopId] [int] NULL,
+	[StopName] [nvarchar](50) NULL,
+	[StopLatitude] [float] NULL,
+	[StopLongitude] [float] NULL,
+	[StateCode] [nvarchar](50) NULL,
+ CONSTRAINT [PK_DimTransport] PRIMARY KEY CLUSTERED 
+(
+	[DWTransportKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[FactCrime]    Script Date: 19/05/2022 3:08:57 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[FactCrime](
+	[DWCrimeKey] [int] IDENTITY(1,1) NOT NULL,
+	[DWGeographyKey] [int] NULL,
+	[DWTransportKey] [int] NULL,
+	[DWStateKey] [int] NULL,
+	[DWSchoolKey] [int] NULL,
+	[CrimeId] [int] NULL,
+	[CrimeCategory] [nvarchar](50) NULL,
+	[CrimeSubCategory] [nvarchar](50) NULL,
+	[Year] [bigint] NULL,
+	[CrimeTotal] [int] NULL,
+ CONSTRAINT [PK_FactCrime] PRIMARY KEY CLUSTERED 
+(
+	[DWCrimeKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[FactCrime]  WITH CHECK ADD  CONSTRAINT [FK_FactCrime_DimAuLocalSchool] FOREIGN KEY([DWSchoolKey])
+REFERENCES [dbo].[DimAuLocalSchool] ([DWSchoolKey])
+GO
+
+ALTER TABLE [dbo].[FactCrime] CHECK CONSTRAINT [FK_FactCrime_DimAuLocalSchool]
+GO
+
+ALTER TABLE [dbo].[FactCrime]  WITH CHECK ADD  CONSTRAINT [FK_FactCrime_DimGeography1] FOREIGN KEY([DWGeographyKey])
+REFERENCES [dbo].[DimGeography] ([DWGeographyKey])
+GO
+
+ALTER TABLE [dbo].[FactCrime] CHECK CONSTRAINT [FK_FactCrime_DimGeography1]
+GO
+
+ALTER TABLE [dbo].[FactCrime]  WITH CHECK ADD  CONSTRAINT [FK_FactCrime_DimState] FOREIGN KEY([DWStateKey])
+REFERENCES [dbo].[DimState] ([DWStateKey])
+GO
+
+ALTER TABLE [dbo].[FactCrime] CHECK CONSTRAINT [FK_FactCrime_DimState]
+GO
+
+ALTER TABLE [dbo].[FactCrime]  WITH CHECK ADD  CONSTRAINT [FK_FactCrime_DimTransport] FOREIGN KEY([DWTransportKey])
+REFERENCES [dbo].[DimTransport] ([DWTransportKey])
+GO
+
+ALTER TABLE [dbo].[FactCrime] CHECK CONSTRAINT [FK_FactCrime_DimTransport]
+GO
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[FactMedianProperty]    Script Date: 19/05/2022 3:09:25 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[FactMedianProperty](
+	[DWPropertyKey] [int] IDENTITY(1,1) NOT NULL,
+	[DWGeographyKey] [int] NULL,
+	[DWTransportKey] [int] NULL,
+	[DWStateKey] [int] NULL,
+	[DWSchoolKey] [int] NULL,
+	[PropertyId] [int] NULL,
+	[DwellingType] [nvarchar](50) NULL,
+	[HouseMedian$] [bigint] NULL,
+	[Year] [bigint] NULL,
+ CONSTRAINT [PK_FactMedianProperty] PRIMARY KEY CLUSTERED 
+(
+	[DWPropertyKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty]  WITH CHECK ADD  CONSTRAINT [FK_FactMedianProperty_DimAuLocalSchool] FOREIGN KEY([DWSchoolKey])
+REFERENCES [dbo].[DimAuLocalSchool] ([DWSchoolKey])
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty] CHECK CONSTRAINT [FK_FactMedianProperty_DimAuLocalSchool]
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty]  WITH CHECK ADD  CONSTRAINT [FK_FactMedianProperty_DimGeography] FOREIGN KEY([DWGeographyKey])
+REFERENCES [dbo].[DimGeography] ([DWGeographyKey])
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty] CHECK CONSTRAINT [FK_FactMedianProperty_DimGeography]
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty]  WITH CHECK ADD  CONSTRAINT [FK_FactMedianProperty_DimState] FOREIGN KEY([DWStateKey])
+REFERENCES [dbo].[DimState] ([DWStateKey])
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty] CHECK CONSTRAINT [FK_FactMedianProperty_DimState]
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty]  WITH CHECK ADD  CONSTRAINT [FK_FactMedianProperty_DimTransport] FOREIGN KEY([DWTransportKey])
+REFERENCES [dbo].[DimTransport] ([DWTransportKey])
+GO
+
+ALTER TABLE [dbo].[FactMedianProperty] CHECK CONSTRAINT [FK_FactMedianProperty_DimTransport]
+GO
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[FactSuburbPopulation]    Script Date: 19/05/2022 3:09:53 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[FactSuburbPopulation](
+	[DWPopulationKey] [int] IDENTITY(1,1) NOT NULL,
+	[DWGeographyKey] [int] NULL,
+	[DWTransportKey] [int] NULL,
+	[DWStateKey] [int] NULL,
+	[DWSchoolKey] [int] NULL,
+	[Population] [bigint] NULL,
+ CONSTRAINT [PK_FactSuburbPopulation] PRIMARY KEY CLUSTERED 
+(
+	[DWPopulationKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbPopulation_DimAuLocalSchool] FOREIGN KEY([DWSchoolKey])
+REFERENCES [dbo].[DimAuLocalSchool] ([DWSchoolKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation] CHECK CONSTRAINT [FK_FactSuburbPopulation_DimAuLocalSchool]
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbPopulation_DimGeography] FOREIGN KEY([DWGeographyKey])
+REFERENCES [dbo].[DimGeography] ([DWGeographyKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation] CHECK CONSTRAINT [FK_FactSuburbPopulation_DimGeography]
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbPopulation_DimState] FOREIGN KEY([DWStateKey])
+REFERENCES [dbo].[DimState] ([DWStateKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation] CHECK CONSTRAINT [FK_FactSuburbPopulation_DimState]
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbPopulation_DimState1] FOREIGN KEY([DWStateKey])
+REFERENCES [dbo].[DimState] ([DWStateKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation] CHECK CONSTRAINT [FK_FactSuburbPopulation_DimState1]
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbPopulation_DimTransport] FOREIGN KEY([DWTransportKey])
+REFERENCES [dbo].[DimTransport] ([DWTransportKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbPopulation] CHECK CONSTRAINT [FK_FactSuburbPopulation_DimTransport]
+GO
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+USE [AdvanceTaskDW]
+GO
+
+/****** Object:  Table [dbo].[FactSuburbRentalMedian]    Script Date: 19/05/2022 3:10:17 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[FactSuburbRentalMedian](
+	[DWRentalKey] [int] IDENTITY(1,1) NOT NULL,
+	[DWGeographyKey] [int] NULL,
+	[DWTransport] [int] NULL,
+	[DWStateKey] [int] NULL,
+	[DWSchoolKey] [int] NULL,
+	[RentId] [int] NULL,
+	[DwellingType] [nvarchar](50) NULL,
+	[RentalMedian] [bigint] NULL,
+ CONSTRAINT [PK_FactSuburbRentalMedian] PRIMARY KEY CLUSTERED 
+(
+	[DWRentalKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbRentalMedian_DimAuLocalSchool] FOREIGN KEY([DWSchoolKey])
+REFERENCES [dbo].[DimAuLocalSchool] ([DWSchoolKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian] CHECK CONSTRAINT [FK_FactSuburbRentalMedian_DimAuLocalSchool]
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbRentalMedian_DimGeography] FOREIGN KEY([DWGeographyKey])
+REFERENCES [dbo].[DimGeography] ([DWGeographyKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian] CHECK CONSTRAINT [FK_FactSuburbRentalMedian_DimGeography]
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbRentalMedian_DimState] FOREIGN KEY([DWRentalKey])
+REFERENCES [dbo].[DimState] ([DWStateKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian] CHECK CONSTRAINT [FK_FactSuburbRentalMedian_DimState]
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian]  WITH CHECK ADD  CONSTRAINT [FK_FactSuburbRentalMedian_DimTransport] FOREIGN KEY([DWTransport])
+REFERENCES [dbo].[DimTransport] ([DWTransportKey])
+GO
+
+ALTER TABLE [dbo].[FactSuburbRentalMedian] CHECK CONSTRAINT [FK_FactSuburbRentalMedian_DimTransport]
+GO
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
